@@ -1,0 +1,734 @@
+
+<!DOCTYPE html>
+<html lang='pt-BR'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>RW Fundição - Gestão de Fundição</title>
+    <style>
+        :root {
+            --dark-metal: #1a1c1e;
+            --brushed-steel: #2d3135;
+            --highlight-orange: #f37021;
+            --text-light: #e1e3e6;
+            --border-color: #45494e;
+            --success-green: #28a745;
+            --danger-red: #dc3545;
+            --warning-yellow: #ffc107;
+            --balance-panel: #202326;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-metal);
+            color: var(--text-light);
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)),
+                linear-gradient(45deg, #111 25%, transparent 25%),
+                linear-gradient(-45deg, #111 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #111 75%),
+                linear-gradient(-45deg, transparent 75%, #111 75%);
+            background-size: 100% 100%, 40px 40px, 40px 40px, 40px 40px, 40px 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            background: linear-gradient(180deg, #3a3f44 0%, var(--brushed-steel) 100%);
+            border-bottom: 3px solid var(--highlight-orange);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .logo-container h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px var(--highlight-orange);
+            text-transform: uppercase;
+        }
+
+        .logo-container p {
+            color: #a0a5ab;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        main {
+            width: 95%;
+            max-width: 1200px;
+            margin: 20px auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(45, 49, 53, 0.9);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 10px 20px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--highlight-orange);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            background: linear-gradient(180deg, var(--highlight-orange) 0%, #d4560f 100%);
+            border: none;
+            color: white;
+            padding: 20px 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            text-align: center;
+            display: block;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(243, 112, 33, 0.4);
+            background: linear-gradient(180deg, #f5823c 0%, var(--highlight-orange) 100%);
+        }
+
+        .btn-register {
+            background: linear-gradient(180deg, var(--success-green) 0%, #1e7e34 100%);
+            margin-top: 15px;
+        }
+
+        .btn-register:hover {
+            background: linear-gradient(180deg, #2ebd4f 0%, var(--success-green) 100%);
+            box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-update {
+            background: linear-gradient(180deg, #17a2b8 0%, #117a8b 100%);
+            margin-top: 15px;
+        }
+
+        .btn-update:hover {
+            background: linear-gradient(180deg, #1fc8e3 0%, #17a2b8 100%);
+            box-shadow: 0 6px 12px rgba(23, 162, 184, 0.4);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #b0b5bb;
+        }
+
+        .form-control {
+            background-color: #121416;
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--highlight-orange);
+        }
+
+        .results-panel {
+            background: rgba(18, 20, 22, 0.7);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .result-box {
+            background: #25282c;
+            border-left: 4px solid var(--highlight-orange);
+            padding: 12px;
+            border-radius: 4px;
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            color: #a0a5ab;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .result-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: white;
+            margin-top: 5px;
+        }
+
+        .balance-card {
+            background: var(--balance-panel);
+            border: 1px dashed var(--highlight-orange);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 25px;
+        }
+
+        .balance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .balance-header h3 {
+            font-size: 1.1rem;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .year-select {
+            background-color: #121416;
+            border: 1px solid var(--highlight-orange);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .balance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .balance-box {
+            background: #191b1d;
+            border-top: 3px solid var(--border-color);
+            padding: 12px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .balance-box.highlight-weight {
+            border-top-color: #00bcd4;
+        }
+
+        .balance-box.highlight-qty {
+            border-top-color: var(--warning-yellow);
+        }
+
+        .balance-box.highlight-unpaid {
+            border-top-color: var(--highlight-orange);
+        }
+
+        .balance-box.highlight-paid {
+            border-top-color: var(--success-green);
+        }
+
+        .balance-box .val {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-top: 5px;
+            color: #ffffff;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 20px;
+            background: #191b1d;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+            min-width: 800px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #24272a;
+            color: #ffffff;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-align: center;
+            user-select: none;
+            transition: opacity 0.2s;
+        }
+
+        .badge:hover {
+            opacity: 0.85;
+        }
+
+        .badge-waiting {
+            background-color: rgba(243, 112, 33, 0.2);
+            color: var(--highlight-orange);
+            border: 1px solid var(--highlight-orange);
+        }
+
+        .badge-paid {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: var(--success-green);
+            border: 1px solid var(--success-green);
+        }
+
+        .btn-table-edit {
+            background: transparent;
+            border: 1px solid #17a2b8;
+            color: #17a2b8;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            margin-right: 5px;
+        }
+
+        .btn-table-edit:hover {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-delete {
+            background: transparent;
+            border: 1px solid var(--danger-red);
+            color: var(--danger-red);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: var(--danger-red);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .logo-container h1 {
+                font-size: 1.5rem;
+            }
+            main {
+                width: 98%;
+                margin: 10px auto;
+            }
+            .card {
+                padding: 15px;
+            }
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class='logo-container'>
+            <h1>RW Fundição</h1>
+            <p>Qualidade & Precisão em Metal</p>
+        </div>
+    </header>
+
+    <main>
+        <!-- FUNDIÇÃO CARD -->
+        <section id='fundicao-card' class='card'>
+            <div class='card-title'>
+                <span>Módulo: Fundição</span>
+            </div>
+
+            <div class='form-grid'>
+                <div class='form-group'>
+                    <label for='date'>Data da Fundição</label>
+                    <input type='date' id='date' class='form-control'>
+                </div>
+                <div class='form-group'>
+                    <label for='largura'>Largura (mm)</label>
+                    <input type='number' id='largura' class='form-control' placeholder='Ex: 200' oninput='calcular()' min='0' step='any'>
+                </div>
+                <div class='form-group'>
+                    <label for='profundidade'>Profundidade / Comp. (mm)</label>
+                    <input type='number' id='profundidade' class='form-control' placeholder='Ex: 300' oninput='calcular()' min='0' step='any'>
+                </div>
+                <div class='form-group'>
+                    <label for='espessura'>Espessura (mm)</label>
+                    <input type='number' id='espessura' class='form-control' placeholder='Ex: 50' oninput='calcular()' min='0' step='any'>
+                </div>
+                <div class='form-group'>
+                    <label for='quantidade'>Quantidade</label>
+                    <input type='number' id='quantidade' class='form-control' value='1' oninput='calcular()' min='1'>
+                </div>
+                <div class='form-group'>
+                    <label for='valor-individual'>Valor Individual (R$)</label>
+                    <input type='number' id='valor-individual' class='form-control' placeholder='Ex: 150.00' oninput='calcular()' min='0' step='any'>
+                </div>
+            </div>
+
+            <div class='results-panel'>
+                <div class='results-grid'>
+                    <div class='result-box'>
+                        <div class='result-label'>Peso Unitário</div>
+                        <div class='result-value' id='peso-unitario'>0.00 kg</div>
+                    </div>
+                    <div class='result-box'>
+                        <div class='result-label'>Peso Total</div>
+                        <div class='result-value' id='peso-total'>0.00 kg</div>
+                    </div>
+                    <div class='result-box'>
+                        <div class='result-label'>Valor Total</div>
+                        <div class='result-value' id='valor-total'>R$ 0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class='btn btn-register' id='btn-action' onclick='registrarPeca()'>Registrar Fundição</button>
+
+            <!-- ANNUAL BALANCE DASHBOARD (FUNDIÇÃO) -->
+            <div class='balance-card'>
+                <div class='balance-header'>
+                    <h3>Balanço Anual da Fundição</h3>
+                    <select id='year-filter' class='year-select' onchange='calcularBalanco()'>
+                        <option value='2025'>2025</option>
+                        <option value='2024'>2024</option>
+                        <option value='2026'>2026</option>
+                    </select>
+                </div>
+                <div class='balance-grid'>
+                    <div class='balance-box highlight-qty'>
+                        <div class='result-label'>Blocos Fundidos</div>
+                        <div class='val' id='balanco-qtd'>0</div>
+                    </div>
+                    <div class='balance-box highlight-weight'>
+                        <div class='result-label'>Peso Total (kg)</div>
+                        <div class='val' id='balanco-peso'>0.00 kg</div>
+                    </div>
+                    <div class='balance-box highlight-unpaid'>
+                        <div class='result-label'>Aguardando Pagamento</div>
+                        <div class='val' id='balanco-aguardando'>R$ 0,00</div>
+                    </div>
+                    <div class='balance-box highlight-paid'>
+                        <div class='result-label'>Valor Recebido (Pago)</div>
+                        <div class='val' id='balanco-pago'>R$ 0,00</div>
+                    </div>
+                    <div class='balance-box' style='border-top-color: #ffffff;'>
+                        <div class='result-label'>Faturamento Geral</div>
+                        <div class='val' id='balanco-total'>R$ 0,00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REGISTERED PIECES TABLE (FUNDIÇÃO) -->
+            <div class='table-container'>
+                <table id='registro-table'>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Dimensões (mm)</th>
+                            <th>Qtd</th>
+                            <th>Peso Total</th>
+                            <th>Valor Total</th>
+                            <th>Pagamento</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id='registro-body'>
+                        <tr>
+                            <td colspan='7' style='text-align: center; color: #a0a5ab;'>Nenhuma fundição registrada ainda.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let listRegistros = [];
+        let editandoId = null;
+
+        document.getElementById('date').valueAsDate = new Date();
+
+        const currentYear = new Date().getFullYear().toString();
+        const selector = document.getElementById('year-filter');
+        if(selector.querySelector(`option[value="${currentYear}"]`)){
+            selector.value = currentYear;
+        }
+
+        // ==================== MODULE: FUNDIÇÃO ====================
+        function calcular() {
+            const largura = parseFloat(document.getElementById('largura').value) || 0;
+            const profundidade = parseFloat(document.getElementById('profundidade').value) || 0;
+            const espessura = parseFloat(document.getElementById('espessura').value) || 0;
+            const quantidade = parseInt(document.getElementById('quantidade').value) || 1;
+            const valorIndividual = parseFloat(document.getElementById('valor-individual').value) || 0;
+
+            const densidadeFerro = 0.00725;
+            const volumeCm3 = (largura * profundidade * espessura) / 1000;
+
+            const pesoUnitario = volumeCm3 * densidadeFerro;
+            const pesoTotal = pesoUnitario * quantidade;
+            const valorTotal = valorIndividual * quantidade;
+
+            document.getElementById('peso-unitario').innerText = pesoUnitario.toFixed(2) + ' kg';
+            document.getElementById('peso-total').innerText = pesoTotal.toFixed(2) + ' kg';
+            document.getElementById('valor-total').innerText = 'R$ ' + valorTotal.toFixed(2).replace('.', ',');
+
+            return { largura, profundidade, espessura, quantidade, pesoTotal, valorTotal };
+        }
+
+        function registrarPeca() {
+            const dados = calcular();
+            const rawDate = document.getElementById('date').value;
+
+            if (!rawDate || dados.largura <= 0 || dados.profundidade <= 0 || dados.espessura <= 0) {
+                alert('Por favor, preencha corretamente a data e as dimensões do bloco!');
+                return;
+            }
+
+            const dateObj = new Date(rawDate + 'T00:00:00');
+            const formattedDate = dateObj.toLocaleDateString('pt-BR');
+
+            if (editandoId !== null) {
+                const idx = listRegistros.findIndex(item => item.id === editandoId);
+                if (idx !== -1) {
+                    listRegistros[idx].data = formattedDate;
+                    listRegistros[idx].dimensoes = `${dados.largura}x${dados.profundidade}x${dados.espessura} mm`;
+                    listRegistros[idx].largura = dados.largura;
+                    listRegistros[idx].profundidade = dados.profundidade;
+                    listRegistros[idx].espessura = dados.espessura;
+                    listRegistros[idx].quantidade = dados.quantidade;
+                    listRegistros[idx].valorIndividual = parseFloat(document.getElementById('valor-individual').value) || 0;
+                    listRegistros[idx].pesoTotalNumeric = dados.pesoTotal;
+                    listRegistros[idx].pesoTotal = dados.pesoTotal.toFixed(2) + ' kg';
+                    listRegistros[idx].valorTotal = dados.valorTotal.toFixed(2);
+                    listRegistros[idx].rawDate = rawDate;
+                }
+                editandoId = null;
+                const btnAction = document.getElementById('btn-action');
+                btnAction.innerText = 'Registrar Fundição';
+                btnAction.className = 'btn btn-register';
+            } else {
+                const novoRegistro = {
+                    id: Date.now(),
+                    data: formattedDate,
+                    rawDate: rawDate,
+                    dimensoes: `${dados.largura}x${dados.profundidade}x${dados.espessura} mm`,
+                    largura: dados.largura,
+                    profundidade: dados.profundidade,
+                    espessura: dados.espessura,
+                    quantidade: dados.quantidade,
+                    valorIndividual: parseFloat(document.getElementById('valor-individual').value) || 0,
+                    pesoTotalNumeric: dados.pesoTotal,
+                    pesoTotal: dados.pesoTotal.toFixed(2) + ' kg',
+                    valorTotal: dados.valorTotal.toFixed(2),
+                    pago: false
+                };
+                listRegistros.push(novoRegistro);
+            }
+
+            atualizarTabela();
+            calcularBalanco();
+
+            document.getElementById('largura').value = '';
+            document.getElementById('profundidade').value = '';
+            document.getElementById('espessura').value = '';
+            document.getElementById('quantidade').value = '1';
+            document.getElementById('valor-individual').value = '';
+            document.getElementById('date').valueAsDate = new Date();
+            calcular();
+        }
+
+        function editarRegistro(id) {
+            const item = listRegistros.find(item => item.id === id);
+            if (item) {
+                editandoId = id;
+                document.getElementById('date').value = item.rawDate || '';
+                document.getElementById('largura').value = item.largura || '';
+                document.getElementById('profundidade').value = item.profundidade || '';
+                document.getElementById('espessura').value = item.espessura || '';
+                document.getElementById('quantidade').value = item.quantidade || '1';
+                document.getElementById('valor-individual').value = item.valorIndividual || '';
+                calcular();
+
+                const btnAction = document.getElementById('btn-action');
+                btnAction.innerText = 'Salvar Alterações';
+                btnAction.className = 'btn btn-update';
+                document.getElementById('date').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function togglePagamento(id) {
+            const index = listRegistros.findIndex(item => item.id === id);
+            if (index !== -1) {
+                listRegistros[index].pago = !listRegistros[index].pago;
+                atualizarTabela();
+                calcularBalanco();
+            }
+        }
+
+        function deletarRegistro(id) {
+            if (confirm('Tem certeza de que deseja remover este registro de fundição?')) {
+                listRegistros = listRegistros.filter(item => item.id !== id);
+                if (editandoId === id) {
+                    editandoId = null;
+                    const btnAction = document.getElementById('btn-action');
+                    btnAction.innerText = 'Registrar Fundição';
+                    btnAction.className = 'btn btn-register';
+                }
+                atualizarTabela();
+                calcularBalanco();
+            }
+        }
+
+        function calcularBalanco() {
+            const anoSelecionado = document.getElementById('year-filter').value;
+            let totalQtd = 0;
+            let totalPeso = 0;
+            let totalAguardando = 0;
+            let totalPago = 0;
+            let totalGeral = 0;
+
+            listRegistros.forEach(item => {
+                if (item.rawDate) {
+                    const itemAno = item.rawDate.split('-')[0];
+                    if (itemAno === anoSelecionado) {
+                        totalQtd += parseInt(item.quantidade) || 0;
+                        totalPeso += parseFloat(item.pesoTotalNumeric) || 0;
+                        const vTotal = parseFloat(item.valorTotal) || 0;
+                        if (item.pago) totalPago += vTotal;
+                        else totalAguardando += vTotal;
+                        totalGeral += vTotal;
+                    }
+                }
+            });
+
+            document.getElementById('balanco-qtd').innerText = totalQtd;
+            document.getElementById('balanco-peso').innerText = totalPeso.toFixed(2) + ' kg';
+            document.getElementById('balanco-aguardando').innerText = 'R$ ' + totalAguardando.toFixed(2).replace('.', ',');
+            document.getElementById('balanco-pago').innerText = 'R$ ' + totalPago.toFixed(2).replace('.', ',');
+            document.getElementById('balanco-total').innerText = 'R$ ' + totalGeral.toFixed(2).replace('.', ',');
+        }
+
+        function atualizarTabela() {
+            const tbody = document.getElementById('registro-body');
+            tbody.innerHTML = '';
+
+            if (listRegistros.length === 0) {
+                tbody.innerHTML = `<tr><td colspan='7' style='text-align: center; color: #a0a5ab;'>Nenhuma fundição registrada ainda.</td></tr>`;
+                return;
+            }
+
+            listRegistros.forEach(item => {
+                const tr = document.createElement('tr');
+                const statusBadge = item.pago
+                    ? `<span class='badge badge-paid' onclick='togglePagamento(${item.id})'>Pago</span>`
+                    : `<span class='badge badge-waiting' onclick='togglePagamento(${item.id})'>Aguardando Pagamento</span>`;
+
+                tr.innerHTML = `
+                    <td>${item.data}</td>
+                    <td>${item.dimensoes}</td>
+                    <td>${item.quantidade}</td>
+                    <td>${item.pesoTotal}</td>
+                    <td>R$ ${item.valorTotal.replace('.', ',')}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class='btn-table-edit' onclick='editarRegistro(${item.id})'>Editar</button>
+                        <button class='btn-delete' onclick='deletarRegistro(${item.id})'>Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+
+</body>
+</html>
